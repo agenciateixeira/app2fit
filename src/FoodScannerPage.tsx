@@ -3,13 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Camera, X, Zap, Plus, Minus, AlertCircle, RefreshCw } from 'lucide-react'
-import { useApp } from '../contexts/AppContext'
+import { useApp } from '@/app/contexts/AppContext'
 
 // Tipos para os hooks simulados
 interface CameraStatus {
   status: 'idle' | 'requesting' | 'active' | 'error'
   error: string | null
-  videoRef: React.RefObject<HTMLVideoElement>
+  videoRef: React.RefObject<HTMLVideoElement | null>
   startCamera: () => Promise<void>
   stopCamera: () => void
   capturePhoto: () => Promise<string>
@@ -41,7 +41,7 @@ interface FoodScannerStatus {
 const useCamera = (): CameraStatus => {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'active' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
   const startCamera = useCallback(async () => {

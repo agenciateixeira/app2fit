@@ -4,7 +4,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Camera, X, ArrowLeft, RotateCw, Check } from 'lucide-react'
-import { useApp } from '../contexts/AppContext'
+import { useApp } from '@/app/contexts/AppContext'
 
 interface FoodData {
   name: string;
