@@ -53,3 +53,4 @@ public/worker-*.js
 public/swe-worker-*.js
 public/swe-worker-*.js.map
 public/sw.js.map
+.vercel
