@@ -5,13 +5,6 @@
   "installCommand": "npm install",
   "devCommand": "npm run dev",
   "regions": ["gru1"],
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "@supabase_url",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase_anon_key",
-    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_key",
-    "GOOGLE_APPLICATION_CREDENTIALS": "@google_credentials",
-    "GOOGLE_CLOUD_PROJECT_ID": "@google_project_id"
-  },
   "headers": [
     {
       "source": "/sw.js",
