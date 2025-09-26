@@ -15,6 +15,16 @@ interface FoodData {
   quantity: number;
 }
 
+interface LabelAnnotation {
+  description: string;
+  score: number;
+}
+
+interface WebEntity {
+  description: string;
+  score: number;
+}
+
 export default function FoodScanner() {
   const router = useRouter()
   const { state, dispatch } = useApp()
@@ -50,7 +60,7 @@ export default function FoodScanner() {
         streamRef.current = stream
         setIsCameraReady(true)
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erro ao acessar câmera:', err)
       setError('Não foi possível acessar a câmera. Verifique as permissões do navegador.')
     }
@@ -143,7 +153,7 @@ export default function FoodScanner() {
       const webEntities = result.responses[0].webDetection?.webEntities || []
       
       // Filtrar rótulos relacionados a alimentos
-      const foodLabels = labels.filter((label: any) => 
+      const foodLabels = labels.filter((label: LabelAnnotation) => 
         label.description.toLowerCase().match(/food|meal|dish|fruit|vegetable|meat|chicken|fish|salad|bread|rice|pasta/)
       )
       
@@ -158,7 +168,7 @@ export default function FoodScanner() {
       // Obter informações nutricionais do alimento detectado
       await fetchNutritionInfo(foodLabels, webEntities)
       
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erro ao analisar imagem:', err)
       setError('Erro ao processar a imagem. Tente novamente.')
       setStep('camera')
@@ -169,8 +179,8 @@ export default function FoodScanner() {
 
   // Buscar informações nutricionais
   const fetchNutritionInfo = async (
-    foodLabels: any[],
-    webEntities: any[]
+    foodLabels: LabelAnnotation[],
+    webEntities: WebEntity[]
   ) => {
     try {
       // Extrair nomes de alimentos
@@ -194,8 +204,6 @@ export default function FoodScanner() {
       if (!response.ok) {
         throw new Error('Erro ao buscar informações nutricionais')
       }
-      
-      const nutritionData = await response.json()
       
       // Para fins de exemplo, usaremos dados simulados
       // No projeto real, estes valores viriam da API
@@ -252,16 +260,6 @@ export default function FoodScanner() {
     
     // Redirecionar para dashboard
     router.push('/dashboard')
-  }
-
-  // Ajustar quantidade
-  const handleQuantityChange = (value: number) => {
-    if (foodData) {
-      setFoodData({
-        ...foodData,
-        quantity: value
-      })
-    }
   }
 
   // Efeito para iniciar a câmera

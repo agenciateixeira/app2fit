@@ -4,11 +4,16 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Smartphone, Monitor, Download, Zap, Camera, BarChart3 } from 'lucide-react'
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
 export default function HomePage() {
   const router = useRouter()
   const [isMobile, setIsMobile] = useState(false)
   const [showInstallPrompt, setShowInstallPrompt] = useState(false)
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
 
   useEffect(() => {
     // Detectar se é mobile
@@ -34,7 +39,7 @@ export default function HomePage() {
     // Listener para prompt de instalação PWA
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
-      setDeferredPrompt(e)
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
       setShowInstallPrompt(true)
     }
 
@@ -293,7 +298,7 @@ export default function HomePage() {
           </p>
           
           <div className="text-sm text-gray-500">
-            © 2024 2Fit. Todos os direitos reservados.
+            © 2025 2Fit. Todos os direitos reservados.
           </div>
         </div>
       </footer>

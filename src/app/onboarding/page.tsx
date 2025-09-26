@@ -6,7 +6,7 @@ import { Camera, Zap, ChevronLeft, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 
 interface OnboardingData {
-  [key: string]: any
+  [key: string]: string | number | string[]
 }
 
 interface Option {
@@ -24,6 +24,12 @@ interface OnboardingStep {
   type: string
 }
 
+interface MockupScreen {
+  id: string
+  title: string
+  content: JSX.Element
+}
+
 export default function OnboardingFlow() {
   const router = useRouter()
   const { signUp, signIn, loading: authLoading } = useAuth()
@@ -38,20 +44,7 @@ export default function OnboardingFlow() {
   const [authError, setAuthError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  useEffect(() => {
-    setIsVisible(true)
-    
-    // Auto-advance mockup screens only on welcome screen
-    if (currentStep === -1) {
-      const interval = setInterval(() => {
-        setCurrentScreen((prev) => (prev + 1) % mockupScreens.length)
-      }, 3000)
-      
-      return () => clearInterval(interval)
-    }
-  }, [currentStep])
-
-  const mockupScreens = [
+  const mockupScreens: MockupScreen[] = [
     {
       id: 'camera',
       title: 'Scanner de comida',
@@ -171,6 +164,19 @@ export default function OnboardingFlow() {
     }
   ]
 
+  useEffect(() => {
+    setIsVisible(true)
+    
+    // Auto-advance mockup screens only on welcome screen
+    if (currentStep === -1) {
+      const interval = setInterval(() => {
+        setCurrentScreen((prev) => (prev + 1) % mockupScreens.length)
+      }, 3000)
+      
+      return () => clearInterval(interval)
+    }
+  }, [currentStep, mockupScreens.length])
+
   const onboardingSteps: OnboardingStep[] = [
     {
       id: 'gender',
@@ -275,7 +281,7 @@ export default function OnboardingFlow() {
       } else {
         setCurrentStep(0) // Avançar para o próximo passo do onboarding
       }
-    } catch (error) {
+    } catch (_error) {
       setAuthError('Erro ao conectar. Tente novamente.')
     }
     setIsSubmitting(false)
@@ -310,7 +316,7 @@ export default function OnboardingFlow() {
 
   const handleMultiSelect = (stepId: string, value: string) => {
     setOnboardingData(prev => {
-      const current = prev[stepId] || []
+      const current = (prev[stepId] as string[]) || []
       if (current.includes(value)) {
         // Remover valor se já estiver selecionado
         return {
@@ -509,7 +515,7 @@ export default function OnboardingFlow() {
                           key={option.label}
                           onClick={() => handleMultiSelect(step.id, option.label)}
                           className={`w-full p-4 border rounded-lg text-left hover:bg-gray-50 ${
-                            (onboardingData[step.id] || []).includes(option.label)
+                            ((onboardingData[step.id] as string[]) || []).includes(option.label)
                               ? 'border-blue-500 bg-blue-50'
                               : 'border-gray-200'
                           }`}
@@ -531,7 +537,7 @@ export default function OnboardingFlow() {
                           type="number"
                           min="16"
                           max="100"
-                          value={onboardingData.age || ''}
+                          value={(onboardingData.age as number) || ''}
                           onChange={(e) => handlePersonalDataChange('age', parseInt(e.target.value))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="25"
@@ -543,7 +549,7 @@ export default function OnboardingFlow() {
                           type="number"
                           min="100"
                           max="250"
-                          value={onboardingData.height || ''}
+                          value={(onboardingData.height as number) || ''}
                           onChange={(e) => handlePersonalDataChange('height', parseInt(e.target.value))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="170"
@@ -556,7 +562,7 @@ export default function OnboardingFlow() {
                           min="30"
                           max="300"
                           step="0.1"
-                          value={onboardingData.weight || ''}
+                          value={(onboardingData.weight as number) || ''}
                           onChange={(e) => handlePersonalDataChange('weight', parseFloat(e.target.value))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="70.0"
@@ -569,7 +575,7 @@ export default function OnboardingFlow() {
                     <div>
                       <div className="text-center mb-6">
                         <div className="text-4xl font-bold text-blue-600 mb-2">
-                          {onboardingData.target_weight || onboardingData.weight || 70} kg
+                          {(onboardingData.target_weight as number) || (onboardingData.weight as number) || 70} kg
                         </div>
                         <div className="text-gray-500">Peso desejado</div>
                       </div>
@@ -578,7 +584,7 @@ export default function OnboardingFlow() {
                         min="40"
                         max="150"
                         step="0.5"
-                        value={onboardingData.target_weight || onboardingData.weight || 70}
+                        value={(onboardingData.target_weight as number) || (onboardingData.weight as number) || 70}
                         onChange={(e) => handlePersonalDataChange('target_weight', parseFloat(e.target.value))}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                       />

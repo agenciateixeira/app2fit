@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useApp } from '../contexts/AppContext'
+import { User } from '@supabase/supabase-js'
 
 interface AuthResult {
   error?: {
     message: string
   }
-  user?: any
+  user?: User
 }
 
 export const useAuth = () => {
@@ -32,7 +33,7 @@ export const useAuth = () => {
       }
 
       return { error: { message: 'Erro desconhecido' } }
-    } catch (error) {
+    } catch (_error) {
       return { error: { message: 'Erro de conexão' } }
     } finally {
       setLoading(false)
@@ -57,7 +58,7 @@ export const useAuth = () => {
       }
 
       return { error: { message: 'Erro desconhecido' } }
-    } catch (error) {
+    } catch (_error) {
       return { error: { message: 'Erro de conexão' } }
     } finally {
       setLoading(false)
@@ -75,7 +76,7 @@ export const useAuth = () => {
 
       dispatch({ type: 'SET_AUTHENTICATED', payload: false })
       return {}
-    } catch (error) {
+    } catch (_error) {
       return { error: { message: 'Erro de conexão' } }
     } finally {
       setLoading(false)

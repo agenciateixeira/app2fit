@@ -206,6 +206,41 @@ const appReducer = (state: AppState, action: Action): AppState => {
   }
 };
 
+// Tipos para Supabase
+interface SupabaseProfile {
+  name?: string;
+  email?: string;
+  gender?: string;
+  age?: number;
+  height?: number;
+  current_weight?: number;
+  target_weight?: number;
+  goal?: string;
+  activity_level?: string;
+  diet_type?: string;
+  workouts_per_week?: string;
+  obstacles?: string[];
+}
+
+interface SupabaseWeightEntry {
+  measurement_date: string;
+  weight: number;
+}
+
+interface SupabaseMealEntry {
+  id: string;
+  food_name: string;
+  calories_per_100g: number;
+  protein_per_100g: number;
+  carbs_per_100g: number;
+  fat_per_100g: number;
+  quantity: number;
+  entry_date: string;
+  created_at?: string;
+  meal_time?: string;
+  photo_url?: string;
+}
+
 // Utilitários
 const utils = {
   calculateBMI: (weight: number, height: number) => {
@@ -270,7 +305,7 @@ const utils = {
     };
   },
   
-  saveToSupabase: async (data: any, table: string) => {
+  saveToSupabase: async (data: Record<string, unknown>, table: string) => {
     try {
       const { data: result, error } = await supabase
         .from(table)
@@ -346,12 +381,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                   .select('*')
                   .eq('user_id', session.user.id);
                 
-                const weightHistory: WeightEntry[] = weightData?.map(entry => ({
+                const weightHistory: WeightEntry[] = (weightData as SupabaseWeightEntry[])?.map(entry => ({
                   date: entry.measurement_date,
                   weight: entry.weight
                 })) || [];
                 
-                const meals: Meal[] = mealData?.map(meal => ({
+                const meals: Meal[] = (mealData as SupabaseMealEntry[])?.map(meal => ({
                   id: meal.id,
                   food: {
                     name: meal.food_name,
@@ -363,30 +398,32 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                   quantity: meal.quantity,
                   date: meal.entry_date,
                   time: meal.created_at ? meal.created_at.split('T')[1].substring(0, 5) : '12:00',
-                  meal_time: meal.meal_time,
+                  meal_time: meal.meal_time as 'breakfast' | 'lunch' | 'dinner' | 'snack',
                   photo_url: meal.photo_url
                 })) || [];
+                
+                const profile = profileData as SupabaseProfile;
                 
                 dispatch({
                   type: 'LOAD_USER_DATA',
                   payload: {
                     user: {
-                      name: profileData.name || 'Usuário',
-                      email: profileData.email || '',
-                      gender: profileData.gender || 'male',
-                      age: profileData.age || 25,
-                      height: profileData.height || 170,
-                      currentWeight: profileData.current_weight || 70,
-                      targetWeight: profileData.target_weight || 65,
+                      name: profile.name || 'Usuário',
+                      email: profile.email || '',
+                      gender: (profile.gender as 'male' | 'female' | 'other') || 'male',
+                      age: profile.age || 25,
+                      height: profile.height || 170,
+                      currentWeight: profile.current_weight || 70,
+                      targetWeight: profile.target_weight || 65,
                       dailyCalories: 2500,
                       dailyProtein: 160,
                       dailyCarbs: 300,
                       dailyFat: 70,
-                      goal: profileData.goal || 'lose_weight',
-                      activityLevel: profileData.activity_level || 'moderately_active',
-                      dietType: profileData.diet_type || 'classic',
-                      workoutsPerWeek: profileData.workouts_per_week || '3-5',
-                      obstacles: profileData.obstacles || []
+                      goal: (profile.goal as 'lose_weight' | 'maintain_weight' | 'gain_weight') || 'lose_weight',
+                      activityLevel: (profile.activity_level as 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active') || 'moderately_active',
+                      dietType: (profile.diet_type as 'classic' | 'pescetarian' | 'vegetarian' | 'vegan') || 'classic',
+                      workoutsPerWeek: profile.workouts_per_week || '3-5',
+                      obstacles: profile.obstacles || []
                     },
                     weightHistory,
                     meals,
@@ -419,8 +456,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     loadUserData();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
+      async (event, _session) => {
+        if (event === 'SIGNED_IN' && _session) {
           dispatch({ type: 'SET_AUTHENTICATED', payload: true });
         } else if (event === 'SIGNED_OUT') {
           dispatch({ type: 'SET_AUTHENTICATED', payload: false });
