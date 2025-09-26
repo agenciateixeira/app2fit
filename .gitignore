@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Credenciais sensíveis
+.env.local
+.env
+gtx-platform-f22f7714dd50.json
+*.json.key
+
+# PWA files
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/swe-worker-*.js
+public/swe-worker-*.js.map
+public/sw.js.map
